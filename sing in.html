@@ -1,0 +1,227 @@
+//Creator_mortza_
+//contact to me in discord(mortza#3700),or Join to my Team "Black Guard".
+//The simple "sing in" webpage developed in HTML.
+
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>Blackguard_mortza_</title>
+	<style>
+		body {
+			user-select: none;
+		}
+
+		#border {
+			background: rgba(0, 0, 0, 0.6);
+			border-radius: 10px;
+			width: 350px;
+		}
+	</style>
+</head>
+
+<body>
+	<center>
+		<br><br>
+		<div id="border"><br>
+			<div id="loginPage">
+				<p>
+					<font color="white">SIGN IN</font>
+				</p>
+				<form id="frm1">
+					<input type="text" id="usrentry" placeholder="Email Address"><br><br>
+					<input type="password" id="passentry" placeholder="Password"><br><br>
+					<a onclick="forgotPassword(); return false" href="">
+						<font color="white">Forgot password?</font>
+					</a><br><br>
+					<input type="checkbox" id="rmcheck" onchange="toggleRememberMe(this)"><label for="rmcheck"><font color="white">Remember Me</font></label><br><br>
+					<input type="button" onclick="requestSignIn(); return false" value="GO"><br><br>
+				</form>
+				<a onclick="requestThirdParty('facebook'); return false" href="">
+					<font color="white">Facebook</font>
+				</a>&nbsp;&nbsp;&nbsp;
+				<a onclick="requestThirdParty('google'); return false" href="">
+					<font color="white">Google</font>
+				</a><br>
+				<a onclick="goToCreateAccount(); return false" href="">
+					<font color="white">Create Account</font>
+				</a><br>
+				<a onclick="requestSkipSignIn(); return false" href="">
+					<font color="white">Sign In Later</font>
+				</a><br>
+				<a onclick="goToConnectionError(); return false" href="">
+					<font color="white">Connection Error</font>
+				</a>
+			</div>
+			<div id="pleaseWaitPage">
+				<p>
+					<font color="white">PLEASE WAIT</font>
+				</p>
+			</div><br>
+		</div>
+		<div id="debugData">
+			<p>
+				<font color="white">Version Info:</font>
+			</p>
+			<div id="versionInfo">
+			</div>
+			<p>
+				<font color="white">Remember Me Data:</font>
+			</p>
+			<div id="rememMe">
+			</div>
+			<p>
+				<font color="white">Signed In User Data:</font>
+			</p>
+			<div id="currUsr">
+			</div>
+		</div><br>
+	</center>
+	<script>
+		document.addEventListener("DOMContentLoaded", function () {
+			if (!window.ue) {
+				document.body.style.backgroundColor = "black";
+			}
+			window.ue.signinprompt.isremembermeenabled().then((value) => {
+				document.getElementById("rmcheck").checked = value;
+			});
+			window.ue.signinprompt.getremembermeuser().then((userObj) => {
+				document.getElementById("usrentry").value = userObj.email;
+			});
+			window.ue.signinprompt.registerloggingincallback((value) => {
+				document.getElementById("pleaseWaitPage").innerHTML = '<p><font color="white">PLEASE WAIT</font></p>';
+				setLoggingIn(value);
+			});
+			window.ue.signinprompt.registersignincompletecallback((userObj, error) => {
+				signInComplete(userObj, error);
+			});
+			window.ue.signinprompt.getremembermeuser().then(rememberMeTest);
+			window.ue.common.getsignedinuser().then(currUserTest);
+			window.ue.client.getversion().then(clientVersionTest);
+		});
+
+		function rememberMeTest(userObj) {
+			document.getElementById("rememMe").innerHTML = '<p><font color="white">' + JSON.stringify(userObj) + '</font></p>';
+			window.ue.signinprompt.getremembermeuser().then(rememberMeTest);
+		}
+
+		function currUserTest(userObj) {
+			document.getElementById("currUsr").innerHTML = '<p><font color="white">' + JSON.stringify(userObj) + '</font></p>';
+			window.ue.common.getsignedinuser().then(currUserTest);
+		}
+
+		function clientVersionTest(versionObj) {
+			document.getElementById("versionInfo").innerHTML = '<p><font color="white">' + JSON.stringify(versionObj) + '</font></p>';
+			window.ue.signinprompt.getremembermeuser().then(rememberMeTest);
+		}
+
+		function setLoggingIn(value) {
+			document.getElementById("pleaseWaitPage").style.display = value ? "block" : "none";
+			document.getElementById("loginPage").style.display = value ? "none" : "block";
+		}
+
+		function toggleRememberMe(element) {
+			window.ue.signinprompt.setremembermeenabled(element.checked);
+		}
+
+		function requestSignIn() {
+			window.ue.signinprompt.requestexchangecodesignin('lalalala',false);
+			var email = document.getElementById("usrentry").value;
+			var pass = document.getElementById("passentry").value;
+			if (email !== "" && pass !== "") {
+				window.ue.signinprompt.requestsignin(email, pass);
+			}
+		}
+
+		function forgotPassword() {
+			window.ue.signinprompt.gotoforgotpassword();
+		}
+
+		function goToCreateAccount() {
+			window.ue.signinprompt.gotosignup();
+		}
+
+		function goToSignIn() {
+			window.ue.signinprompt.gotosignin();
+		}
+
+		function requestSkipSignIn() {
+			window.ue.signinprompt.requestofflinesignin();
+		}
+
+		function goToConnectionError() {
+			window.ue.signinprompt.gotoconnectionerror();
+		}
+
+		function getSignedInUser() {
+			window.ue.common.getsignedinuser().then((user) => {
+				console.log(JSON.stringify(user));
+			});
+		}
+
+		function makeThirdPartyId() {
+			var e = (new Date).getTime();
+			var t = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (t) => {
+				var n = (e + Math.random() * 16) % 16 | 0;
+				e = Math.floor(e / 16);
+				return (t == "x" ? n : n & 3 | 8).toString(16)
+			});
+			return t
+		}
+
+		function requestThirdParty(thirdParty) {
+			window.thirdParty = thirdParty;
+			window.thirdPartyId = makeThirdPartyId();
+			setLoggingIn(true);
+			startPollingThirdParty();
+			window.ue.environment.getbaseurl("{launcher.epicgames}").then((baseLauncherEpicGames) => {
+				window.baseLauncherEpicGames = baseLauncherEpicGames;
+				window.ue.common.launchexternalurl(window.baseLauncherEpicGames + "/external-login?authType=" + window.thirdParty + "&isRegister=false&loginRequestId=" + window.thirdPartyId);
+			});
+		}
+
+		function startPollingThirdParty() {
+			window.ue.environment.getbaseurl("{accounts.launcher.epicgames}").then((baseAccountsLauncherEpicGames) => {
+				window.baseAccountsLauncherEpicGames = baseAccountsLauncherEpicGames;
+				setTimeout(pollForThirdParty, 1000);
+			});
+		}
+
+		function pollForThirdParty() {
+			var xmlReq = new XMLHttpRequest();
+			xmlReq.onreadystatechange = () => {
+				if (xmlReq.readyState === XMLHttpRequest.DONE) {
+					var result = JSON.parse(xmlReq.responseText);
+					if (result.map && result.map.redirectUrl) {
+						window.location = result.map.redirectUrl;
+					}
+					else {
+						console.log("Third Party Login Result:\n" + xmlReq.responseText);
+						setTimeout(pollForThirdParty, 5000);
+					}
+				}
+			};
+			xmlReq.open("GET", window.baseAccountsLauncherEpicGames + "/login/externalLoginStatus?loginRequestId=" + window.thirdPartyId);
+			xmlReq.send();
+		}
+
+		function signInComplete(userObj, error) {
+			if (error === 'ok') {
+				document.getElementById("pleaseWaitPage").innerHTML = '<p><font color="white">SIGNED IN<br>Welcome ' + userObj.name + '<br>(' + error + ')</font></p>';
+				setLoggingIn(true);
+			}
+			else {
+				setLoggingIn(false);
+			}
+
+		}
+
+		function thirdPartyComplete(response) {
+			document.getElementById("pleaseWaitPage").innerHTML = '<p><font color="white">THIRDPARTY CALLBACK<br>' + response + '</font></p><br><a onclick="goToSignIn()" href=""><font color="white">Go Back</font></a>';
+			setLoggingIn(true);
+		}
+	</script>
+</body>
+
+</html>
